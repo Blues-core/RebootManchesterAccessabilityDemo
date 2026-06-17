@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slice Slice Baby - Accessibility Demo</title>
+    <style>
+        :root {
+            --primary: #e63946;
+            --secondary: #f1faee;
+            --dark: #1d3557;
+            --accent: #457b9d;
+            --success: #2a9d8f;
+        }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { margin: 0; padding: 0; background-color: #f7f9fb; color: var(--dark); }
+
+        /* Admin / Demo Controller */
+        #demo-controller { background: #222; color: #fff; padding: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 13px; }
+        #demo-controller button { background: var(--accent); color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px; }
+        #demo-controller button:hover { background: #345e78; }
+        .run-indicator { font-weight: bold; padding: 2px 6px; border-radius: 3px; }
+        .run1-bg { background: var(--success); }
+        .run2-bg { background: var(--primary); }
+
+        /* Game Header & Timer */
+        header { background: var(--primary); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { margin: 0; font-size: 24px; font-style: italic; }
+        #timer-box { background: rgba(0,0,0,0.2); padding: 8px 15px; border-radius: 20px; font-weight: bold; font-size: 18px; }
+
+        /* Layout Container */
+        .container { max-width: 1000px; margin: 20px auto; padding: 20px; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        
+        /* Pizza Shop Simulation Cards */
+        .shop-card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .pizza-menu-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed #ccc; }
+        
+        /* Task & Setup Side Panel */
+        .panel { background: var(--dark); color: white; padding: 20px; border-radius: 8px; height: fit-content; }
+        .panel h3 { margin-top: 0; color: #f1faee; border-bottom: 2px solid var(--primary); padding-bottom: 8px; }
+        
+        /* User Answer Form */
+        .answer-box { margin-top: 20px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 6px; }
+        .answer-box input[type="text"] { width: 100%; padding: 8px; margin-top: 5px; border-radius: 4px; border: none; }
+        .answer-box button { width: 100%; padding: 10px; margin-top: 10px; background: var(--primary); border: none; color: white; font-weight: bold; cursor: pointer; border-radius: 4px; }
+
+        /* --- Accessibility Barriers (Applied conditionally in Run 2) --- */
+        /* Red/Green low contrast barrier */
+        .bad-contrast { background-color: #00FF00 !important; color: #FF0000 !important; } 
+        /* Tiny click targets for Tremor / Blurred Vision */
+        .tiny-target { padding: 2px 4px !important; font-size: 9px !important; width: auto !important; height: auto !important; }
+        /* Center Vision Loss barrier positioning helper */
+        .peripheral-layout { display: flex; justify-content: space-between; width: 100%; }
+
+        /* Modal Screen for Instructions */
+        #modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 40px; border-radius: 12px; max-width: 600px; width: 90%; text-align: center; color: #333; }
+        .modal-content h2 { margin-top: 0; color: var(--primary); }
+        .plugin-instruction { background: #fff3cd; border: 1px solid #ffeeba; padding: 15px; border-radius: 6px; margin: 20px 0; font-weight: bold; }
+        .start-btn { background: var(--dark); color: white; padding: 12px 30px; border: none; font-size: 16px; cursor: pointer; border-radius: 5px; font-weight: bold; }
+        .start-btn:hover { background: var(--primary); }
+
+        /* Utility classes */
+        .hidden { display: none !important; }
+        .text-muted { color: #777; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <div id="demo-controller">
+        <strong>Demo Controls:</strong>
+        <button onclick="jumpTo(0, 1)">R1: Colorblind</button>
+        <button onclick="jumpTo(1, 1)">R1: Dyslexia</button>
+        <button onclick="jumpTo(2, 1)">R1: Tremor</button>
+        <button onclick="jumpTo(3, 1)">R1: Keyboard</button>
+        <button onclick="jumpTo(4, 1)">R1: Blur</button>
+        <button onclick="jumpTo(5, 1)">R1: Center Loss</button>
+        |
+        <button onclick="jumpTo(0, 2)">R2: Colorblind</button>
+        <button onclick="jumpTo(1, 2)">R2: Dyslexia</button>
+        <button onclick="jumpTo(2, 2)">R2: Tremor</button>
+        <button onclick="jumpTo(3, 2)">R2: Keyboard</button>
+        <button onclick="jumpTo(4, 2)">R2: Blur</button>
+        <button onclick="jumpTo(5, 2)">R2: Center Loss</button>
+    </div>
+
+    <header>
+        <div>
+            <h1>🍕 Slice Slice Baby</h1>
+            <span id="run-badge" class="run-indicator run1-bg">Run 1: Standard Mode</span>
+        </div>
+        <div id="timer-box">Time Left: <span id="timer-count">30</span>s</div>
+    </header>
+
+    <div class="container">
+        
+        <main class="shop-card" id="shop-interface">
+            </main>
+
+        <aside class="panel">
+            <h3>Current Objective</h3>
+            <p id="task-instruction-text">Loading task...</p>
+            
+            <div class="answer-box">
+                <label for="user-answer"><strong>Enter your findings:</strong></label>
+                <input type="text" id="user-answer" placeholder="Type answer here...">
+                <button onclick="checkAnswer()">Submit Answer</button>
+            </div>
+        </aside>
+    </div>
+
+    <div id="modal-overlay">
+        <div class="modal-content">
+            <h2 id="modal-title">Welcome to the Accessibility Challenge</h2>
+            <div id="modal-body">
+                <p>You will explore the ordering system of <strong>Slice Slice Baby</strong> to complete simple tasks.</p>
+                <p><strong>First Run:</strong> You will complete the tasks normally without constraints.</p>
+            </div>
+            <div id="plugin-instruction-box" class="plugin-instruction hidden">
+                ⚠️ EXHIBITOR: Please enable the Funkify extension profile requested above before clicking start.
+            </div>
+            <button class="start-btn" onclick="closeModal()">Start Task</button>
+        </div>
+    </div>
+
+    <script>
+        // Game Definition Matrix
+        const configs = [
+            {
+                disability: "Colour Blindness (Protanopia/Deuteranopia)",
+                run1: {
+                    task: "Find the price of a medium pepperoni pizza.",
+                    answer: "£12.99",
+                    html: `
+                        <h2>Menu - Pizzas</h2>
+                        <div class="pizza-menu-item">
+                            <div><strong>Margherita</strong><br><small>Cheese & Tomato</small></div>
+                            <div>£10.99</div>
+                        </div>
+                        <div class="pizza-menu-item" style="background: #eef9f0; padding: 10px;">
+                            <div><strong>Pepperoni (Daily Special Deal!)</strong><br><small>Double pepperoni & mozzarella</small></div>
+                            <div>Small: £9.99 | <strong>Medium: £12.99</strong> | Large: £15.99</div>
+                        </div>
+                    `
+                },
+                run2: {
+                    task: "Find the price of a medium pepperoni pizza. (Warning: Color contrast might be compromised)",
+                    answer: "£14.50",
+                    html: `
+                        <h2>Menu - Pizzas</h2>
+                        <div class="pizza-menu-item">
+                            <div><strong>Margherita</strong></div><div>£10.99</div>
+                        </div>
+                        <div class="pizza-menu-item bad-contrast" style="padding: 10px;">
+                            <div><strong>Pepperoni (NEW PRICES HIGHLIGHTED HERE)</strong></div>
+                            <div>Small: £11.00 | <strong>Medium: £14.50</strong> | Large: #17.50</div>
+                        </div>
+                    `
+                }
+            },
+            {
+                disability: "Dyslexia",
+                run1: {
+                    task: "What time is the shop open?",
+                    answer: "11pm",
+                    html: `
+                        <h2>Store Opening Information</h2>
+                        <p>Welcome to Slice Slice Baby. We prepare fresh dough daily using premium flour.</p>
+                        <p>We are proud to serve our community. Our doors open daily from 12pm noon until <strong>11pm</strong> at night.</p>
+                    `
+                },
+                run2: {
+                    task: "What time is the shop open? (Read the paragraph text carefully)",
+                    answer: "10pm",
+                    html: `
+                        <h2>Store Opening Information</h2>
+                        
