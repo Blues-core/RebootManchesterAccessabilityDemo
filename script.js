@@ -1,4 +1,5 @@
-// Game logic updated: Round 2 cycles through disabilities (one per question) and uses different site content/answers
+// Game logic updated: Round 2 cycles through disabilities (one per question), uses different site content/answers,
+// and shows exhibitor talking points on the pre-question overlay.
 (() => {
   const DISABILITIES = ['color','dyslexia','tremor','nomouse','blur','centreloss'];
 
@@ -9,7 +10,6 @@
       hint: 'Check the Menu section for Medium Pepperoni.',
       answerRound1: '£12.99',
       answerRound2: '£13.49',
-      // selector to update display
       display: { type: 'price', selectorMatch: 'Medium Pepperoni' }
     },
     {
@@ -53,6 +53,40 @@
       display: { type: 'dessert', selector: '#desserts .dessert' }
     }
   ];
+
+  // Short talking points for exhibitors for each disability
+  const TALKING_POINTS = {
+    color: [
+      'Explain colour blindness (red/green): many users cannot distinguish red and green hues.',
+      'Point out the price highlight with low contrast and ask how that could be improved (labeling, icons, stronger contrast).',
+      'Mention WCAG contrast guidelines and using text+symbol redundancy.'
+    ],
+    dyslexia: [
+      'Explain dyslexia simulation: moving text makes reading paragraphs much harder.',
+      'Ask attendees how comfortable they felt reading the description and whether they could quickly extract the answer.',
+      'Talk about improvements: increased line-height, sans-serif fonts, clear spacing, and avoiding animations on text.'
+    ],
+    tremor: [
+      'Explain coordination tremor: clicking small moving buttons is difficult.',
+      'Highlight small CTAs — ask attendees whether they could reliably click the Add buttons.',
+      'Discuss solutions: larger touch targets, spacing, and supporting keyboard activation.'
+    ],
+    nomouse: [
+      'No mouse simulation: some users rely solely on keyboard or assistive tech.',
+      'Show how removing focus outlines or pointer events breaks keyboard access.',
+      'Talk about ensuring all functionality is reachable and operable via keyboard and using semantic controls.'
+    ],
+    blur: [
+      'Blurred vision simulation: small text and low-contrast elements become unreadable.',
+      'Ask attendees how they found scanning for prices or the phone number when content is blurred.',
+      'Discuss solutions: larger font sizes, high contrast, and scalable responsive design.'
+    ],
+    centreloss: [
+      'Centre vision loss: the central part of the view is obscured.',
+      'Explain how CTAs placed centrally may be hidden to users with this condition.',
+      'Talk about ensuring important elements aren’t solely reliant on central placement and providing multiple paths to actions.'
+    ]
+  };
 
   // Elements
   const startR1Btn = document.getElementById('start-round1');
@@ -112,19 +146,16 @@
 
     // Q4: vegan count — toggle data-vegan on one item to change count
     const pizzaItems = document.querySelectorAll('.pizza');
-    // Baseline: items 1.. have data-vegan as originally. For round2 we will set the third listed pizza to non-vegan
     if (pizzaItems && pizzaItems.length >= 4) {
       if (r === 1) {
         pizzaItems[0].setAttribute('data-vegan','false');
         pizzaItems[1].setAttribute('data-vegan','true');
         pizzaItems[2].setAttribute('data-vegan','true');
         pizzaItems[3].setAttribute('data-vegan','true');
-        // ensure names show (V) on vegan ones
         setVLabel(pizzaItems[1], true);
         setVLabel(pizzaItems[2], true);
         setVLabel(pizzaItems[3], true);
       } else {
-        // change one item to non-vegan to reduce count to 2
         pizzaItems[0].setAttribute('data-vegan','false');
         pizzaItems[1].setAttribute('data-vegan','true');
         pizzaItems[2].setAttribute('data-vegan','false');
@@ -143,7 +174,6 @@
   function setVLabel(li, isV) {
     const nameEl = li.querySelector('.pizza-name');
     if (!nameEl) return;
-    // remove any (V)
     nameEl.textContent = nameEl.textContent.replace(/\(V\)/g,'').trim();
     if (isV) nameEl.textContent = `${nameEl.textContent} (V)`;
   }
@@ -197,13 +227,10 @@
     resetTimer();
 
     if (round === 2) {
-      // Determine disability for this question
       const disabilityKey = mapIndexToDisability(index);
-      // Apply the class for visual issues
       clearDisabilityClasses();
       const cls = mapSelectToClass(disabilityKey);
       if (cls) mockSite.classList.add(cls);
-      // Show pre-page telling exhibitor which filter to enable
       showPrePageForDisability(disabilityKey, () => {
         startTimer();
       });
@@ -245,10 +272,26 @@
       centreloss: 'Centre vision loss: enable centre-vision loss simulation in Funkify. The centre of the screen will be obscured — important CTAs may be hidden under the blind spot.'
     };
     p.textContent = mapping[disabilityKey] || '';
+
     const note = document.createElement('p');
     note.style.fontStyle = 'italic';
     note.style.marginTop = '8px';
     note.textContent = 'Enable the matching Funkify filter now, then click Start.';
+
+    // Talking points section (for exhibitors) --- added
+    const tpHeader = document.createElement('h4');
+    tpHeader.textContent = 'Talking points (for exhibitors)';
+    tpHeader.style.marginTop = '12px';
+    const tpList = document.createElement('ul');
+    tpList.style.marginTop = '6px';
+    tpList.style.paddingLeft = '20px';
+    const points = TALKING_POINTS[disabilityKey] || [];
+    points.forEach(pt => {
+      const li = document.createElement('li');
+      li.textContent = pt;
+      tpList.appendChild(li);
+    });
+
     const btns = document.createElement('div');
     btns.style.display='flex';
     btns.style.gap='10px';
@@ -268,9 +311,14 @@
     };
     btns.appendChild(startBtn);
     btns.appendChild(cancelBtn);
+
     box.appendChild(h);
     box.appendChild(p);
     box.appendChild(note);
+    if (points.length) {
+      box.appendChild(tpHeader);
+      box.appendChild(tpList);
+    }
     box.appendChild(btns);
     overlay.appendChild(box);
     document.body.appendChild(overlay);
