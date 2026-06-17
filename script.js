@@ -1,5 +1,6 @@
 // Game logic updated: Round 2 cycles through disabilities (one per question), uses different site content/answers,
 // and shows exhibitor talking points on the pre-question overlay.
+// NOTE: Visual simulation classes are NOT applied in Round 2 — Funkify extension will be used to simulate disabilities.
 (() => {
   const DISABILITIES = ['color','dyslexia','tremor','nomouse','blur','centreloss'];
 
@@ -228,9 +229,8 @@
 
     if (round === 2) {
       const disabilityKey = mapIndexToDisability(index);
+      // Do NOT apply any local CSS simulation here. Funkify extension will be used to simulate the disability.
       clearDisabilityClasses();
-      const cls = mapSelectToClass(disabilityKey);
-      if (cls) mockSite.classList.add(cls);
       showPrePageForDisability(disabilityKey, () => {
         startTimer();
       });
@@ -278,7 +278,7 @@
     note.style.marginTop = '8px';
     note.textContent = 'Enable the matching Funkify filter now, then click Start.';
 
-    // Talking points section (for exhibitors) --- added
+    // Talking points section (for exhibitors)
     const tpHeader = document.createElement('h4');
     tpHeader.textContent = 'Talking points (for exhibitors)';
     tpHeader.style.marginTop = '12px';
