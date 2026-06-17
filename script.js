@@ -1,54 +1,62 @@
-// Minimal game logic for Slice Slice Baby accessibility demo (visual update only)
+// Game logic updated: Round 2 cycles through disabilities (one per question) and uses different site content/answers
 (() => {
+  const DISABILITIES = ['color','dyslexia','tremor','nomouse','blur','centreloss'];
+
   const QUESTIONS = [
     {
       id:0,
       title: 'Find the price of a medium pepperoni pizza',
       hint: 'Check the Menu section for Medium Pepperoni.',
-      answer: '£12.99',
-      answerNormalized: '12.99'
+      answerRound1: '£12.99',
+      answerRound2: '£13.49',
+      // selector to update display
+      display: { type: 'price', selectorMatch: 'Medium Pepperoni' }
     },
     {
       id:1,
       title: 'What time is the shop open',
       hint: 'Look in Contact & Opening for opening hours.',
-      answer: '11:00 – 23:00',
-      answerNormalized: '11:00'
+      answerRound1: '11:00 – 23:00',
+      answerRound2: '10:00 – 22:00',
+      display: { type: 'hours', selector: '#contact' }
     },
     {
       id:2,
       title: 'Find the contact number for the pizza shop',
       hint: 'Contact section contains the phone number.',
-      answer: '01612219900',
-      answerNormalized: '01612219900'
+      answerRound1: '01612219900',
+      answerRound2: '01612219901',
+      display: { type: 'phone', selector: '#phone' }
     },
     {
       id:3,
       title: 'How much is a daily special meal combo',
       hint: 'Check the Daily Special section.',
-      answer: '£20.99',
-      answerNormalized: '20.99'
+      answerRound1: '£20.99',
+      answerRound2: '£22.49',
+      display: { type: 'special-price', selector: '.special-price' }
     },
     {
       id:4,
       title: 'How many pizzas are suitable for vegans',
       hint: 'Count menu items labelled (V) or data-vegan attribute.',
-      answer: '3',
-      answerNormalized: '3'
+      answerRound1: '3',
+      answerRound2: '2',
+      display: { type: 'vegan-count', selector: '.pizza-list' }
     },
     {
       id:5,
       title: 'What is the name of their only dessert',
       hint: 'Check Desserts.',
-      answer: 'Vanilla slice',
-      answerNormalized: 'vanilla slice'
+      answerRound1: 'Vanilla slice',
+      answerRound2: 'Lemon tart',
+      display: { type: 'dessert', selector: '#desserts .dessert' }
     }
   ];
 
   // Elements
   const startR1Btn = document.getElementById('start-round1');
   const startR2Btn = document.getElementById('start-round2');
-  const round2Select = document.getElementById('round2-disability');
   const questionNav = document.getElementById('question-nav');
   const statusEl = document.getElementById('status');
   const stageTitle = document.getElementById('stage-title');
@@ -73,27 +81,93 @@
     return ('' + v).trim().toLowerCase().replace(/£/g,'').replace(/\s+/g,' ');
   }
 
-  function startRound(r, opts = {}) {
+  // Apply visual/site content for a given round (1 or 2)
+  function applySiteContentForRound(r){
+    // Q0: Medium Pepperoni price
+    const pepperoni = Array.from(document.querySelectorAll('.pizza')).find(li => {
+      const nameEl = li.querySelector('.pizza-name');
+      return nameEl && nameEl.textContent.includes('Medium Pepperoni');
+    });
+    if (pepperoni) {
+      const priceEl = pepperoni.querySelector('.pizza-price');
+      priceEl.textContent = (r === 1) ? '£12.99' : '£13.49';
+    }
+
+    // Q1: opening hours
+    const contact = document.querySelector('#contact');
+    if (contact) {
+      const pEls = contact.querySelectorAll('p');
+      if (pEls && pEls.length >= 2) {
+        pEls[1].innerHTML = `<strong>Opening hours:</strong> ${(r === 1) ? 'Mon–Sun 11:00 – 23:00' : 'Mon–Sun 10:00 – 22:00'}`;
+      }
+    }
+
+    // Q2: phone
+    const phone = document.querySelector('#phone');
+    if (phone) phone.textContent = (r === 1) ? '01612219900' : '01612219901';
+
+    // Q3: special price
+    const specialPrice = document.querySelector('.special-price');
+    if (specialPrice) specialPrice.textContent = (r === 1) ? '£20.99' : '£22.49';
+
+    // Q4: vegan count — toggle data-vegan on one item to change count
+    const pizzaItems = document.querySelectorAll('.pizza');
+    // Baseline: items 1.. have data-vegan as originally. For round2 we will set the third listed pizza to non-vegan
+    if (pizzaItems && pizzaItems.length >= 4) {
+      if (r === 1) {
+        pizzaItems[0].setAttribute('data-vegan','false');
+        pizzaItems[1].setAttribute('data-vegan','true');
+        pizzaItems[2].setAttribute('data-vegan','true');
+        pizzaItems[3].setAttribute('data-vegan','true');
+        // ensure names show (V) on vegan ones
+        setVLabel(pizzaItems[1], true);
+        setVLabel(pizzaItems[2], true);
+        setVLabel(pizzaItems[3], true);
+      } else {
+        // change one item to non-vegan to reduce count to 2
+        pizzaItems[0].setAttribute('data-vegan','false');
+        pizzaItems[1].setAttribute('data-vegan','true');
+        pizzaItems[2].setAttribute('data-vegan','false');
+        pizzaItems[3].setAttribute('data-vegan','true');
+        setVLabel(pizzaItems[1], true);
+        setVLabel(pizzaItems[2], false);
+        setVLabel(pizzaItems[3], true);
+      }
+    }
+
+    // Q5: dessert
+    const dessert = document.querySelector('#desserts .dessert');
+    if (dessert) dessert.textContent = (r === 1) ? 'Vanilla slice' : 'Lemon tart';
+  }
+
+  function setVLabel(li, isV) {
+    const nameEl = li.querySelector('.pizza-name');
+    if (!nameEl) return;
+    // remove any (V)
+    nameEl.textContent = nameEl.textContent.replace(/\(V\)/g,'').trim();
+    if (isV) nameEl.textContent = `${nameEl.textContent} (V)`;
+  }
+
+  function startRound(r) {
     round = r;
     completed = 0;
     updateProgress();
+    applySiteContentForRound(r);
     if (r === 1) {
       stageTitle.textContent = 'Round 1 — Baseline';
       statusEl.textContent = 'Baseline: no simulations applied. Let the user explore the website to find answers.';
       clearDisabilityClasses();
       goToQuestion(0);
     } else {
-      const selected = opts.disability || round2Select.value;
-      if (!selected) {
-        alert('Please choose a disability in the dropdown for Round 2 before starting.');
-        return;
-      }
-      stageTitle.textContent = `Round 2 — Simulation: ${round2Select.options[round2Select.selectedIndex].text}`;
-      statusEl.textContent = `Round 2 with simulation: ${round2Select.options[round2Select.selectedIndex].text}. Please enable the matching filter in Funkify and then press Start on the question.`;
+      stageTitle.textContent = 'Round 2 — Simulated disabilities (one per question)';
+      statusEl.textContent = 'Round 2 will cycle through disabilities: one per question. Enable the matching Funkify filter when prompted.';
       clearDisabilityClasses();
-      mockSite.classList.add(mapSelectToClass(selected));
       goToQuestion(0);
     }
+  }
+
+  function mapIndexToDisability(idx){
+    return DISABILITIES[idx % DISABILITIES.length];
   }
 
   function mapSelectToClass(val){
@@ -121,8 +195,16 @@
     if (answerInput) answerInput.value = '';
     if (answerInput) answerInput.focus();
     resetTimer();
+
     if (round === 2) {
-      showPrePageForDisability(round2Select.value, () => {
+      // Determine disability for this question
+      const disabilityKey = mapIndexToDisability(index);
+      // Apply the class for visual issues
+      clearDisabilityClasses();
+      const cls = mapSelectToClass(disabilityKey);
+      if (cls) mockSite.classList.add(cls);
+      // Show pre-page telling exhibitor which filter to enable
+      showPrePageForDisability(disabilityKey, () => {
         startTimer();
       });
     } else {
@@ -160,10 +242,9 @@
       tremor: 'Coordination tremor: enable the shaky-hand simulation in Funkify. Small CTAs are harder to click. The participant should try to add or select a small button.',
       nomouse: 'No mouse: enable keyboard-only navigation (or simulate mouse loss) in Funkify. The site intentionally removes some keyboard affordances in this round to show problems.',
       blur: 'Blurred vision: enable the blur simulation in Funkify. Text becomes fuzzy and small elements are difficult to read; consider increasing zoom if needed for participants with low vision (this demo intentionally uses smaller text for some elements).',
-      centreloss: 'Centre vision loss: enable centre-vision loss simulation in Funkify. The centre of the screen will be obscured — important CTAs may be hidden under the blind spot.',
-      '': 'No disability selected. Choose one from the dropdown.'
+      centreloss: 'Centre vision loss: enable centre-vision loss simulation in Funkify. The centre of the screen will be obscured — important CTAs may be hidden under the blind spot.'
     };
-    p.textContent = mapping[disabilityKey] || mapping[''];
+    p.textContent = mapping[disabilityKey] || '';
     const note = document.createElement('p');
     note.style.fontStyle = 'italic';
     note.style.marginTop = '8px';
@@ -237,14 +318,17 @@
 
   function checkAnswer(val) {
     const norm = normalizeAnswerText(val);
-    const expected = normalizeAnswerText(currentQ.answer);
+    const expected = (round === 1) ? normalizeAnswerText(currentQ.answerRound1) : normalizeAnswerText(currentQ.answerRound2);
+
+    // For opening hours accept hour portion
     if (currentQ.id === 1) {
-      if (norm.includes('11:00') || norm.includes('11')) return true;
+      if (norm.includes('11:00') || norm.includes('10:00') || norm.includes('11') || norm.includes('10')) return true;
     }
     if (currentQ.id === 4) {
-      if (norm === '3' || norm.includes('3')) return true;
+      // numeric match
+      if (norm === normalizeAnswerText(currentQ.answerRound1) || norm === normalizeAnswerText(currentQ.answerRound2)) return true;
     }
-    return norm.includes(expected) || expected.includes(norm) || norm === currentQ.answerNormalized;
+    return norm.includes(expected) || expected.includes(norm) || norm === expected;
   }
 
   function markCompleted(correct){
@@ -255,7 +339,8 @@
       feedback.textContent = 'Correct ✔';
       feedback.style.color = 'var(--success)';
     } else {
-      feedback.textContent = `Wrong / timed out. Answer: ${currentQ.answer}`;
+      const ans = (round === 1) ? currentQ.answerRound1 : currentQ.answerRound2;
+      feedback.textContent = `Wrong / timed out. Answer: ${ans}`;
       feedback.style.color = 'var(--danger)';
     }
   }
@@ -277,14 +362,7 @@
 
   // Event listeners
   startR1Btn.addEventListener('click', () => startRound(1));
-  startR2Btn.addEventListener('click', () => {
-    if (!round2Select.value) {
-      alert('Pick one disability from the dropdown for Round 2.');
-      round2Select.focus();
-      return;
-    }
-    startRound(2, {disability: round2Select.value});
-  });
+  startR2Btn.addEventListener('click', () => startRound(2));
 
   // Jump to question from nav
   questionNav.addEventListener('click', (e) => {
@@ -320,17 +398,17 @@
     });
   });
 
-  // Progress updater
   function updateProgress(){
     progressEl.textContent = `${completed} / ${QUESTIONS.length}`;
   }
 
-  // Initialize view
   (function init(){
     qTitle.textContent = 'Ready';
     qDesc.textContent = 'Press Start Round 1 to begin the baseline run.';
     updateTimerDisplay();
     updateProgress();
+    // ensure baseline content is applied
+    applySiteContentForRound(1);
   })();
 
 })();
