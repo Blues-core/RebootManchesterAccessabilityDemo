@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Slice Slice Baby — Accessibility Demo Game</title>
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to main content</a>
+
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+      <div class="brand">
+        <!-- Inline SVG logo -->
+        <svg class="logo-svg" width="46" height="46" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="g1" x1="0" x2="1">
+              <stop offset="0" stop-color="#ffd166"/>
+              <stop offset="1" stop-color="#ff7b54"/>
+            </linearGradient>
+          </defs>
+          <circle cx="32" cy="32" r="30" fill="url(#g1)"/>
+          <path d="M45 20c-6 2-14 10-18 18-2 4 0 10 5 12 8 3 18-7 19-14 1-8-4-16-6-16z" fill="#8f3e16" opacity="0.95"/>
+          <circle cx="38" cy="26" r="3.2" fill="#8b0000"/>
+          <circle cx="30" cy="30" r="2.8" fill="#8b0000"/>
+          <circle cx="36" cy="36" r="2.4" fill="#f6e05e"/>
+        </svg>
+        <div class="brand-text">
+          <h1>Slice Slice Baby</h1>
+          <p class="tagline">A trade-show accessibility demo</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="round-controls">
+          <button id="start-round1" class="btn primary">Start Round 1</button>
+          <button id="start-round2" class="btn outline">Start Round 2</button>
+        </div>
+        <label for="round2-disability" class="visually-hidden">Choose disability</label>
+        <select id="round2-disability" aria-label="Disability for round 2" class="select">
+          <option value="">-- choose disability for demo --</option>
+          <option value="color">Colour blindness (red/green)</option>
+          <option value="dyslexia">Dyslexia</option>
+          <option value="tremor">Coordination tremor</option>
+          <option value="nomouse">No mouse (keyboard issues)</option>
+          <option value="blur">Blurred vision</option>
+          <option value="centreloss">Centre vision loss</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="container" role="main">
+    <aside class="sidebar" aria-label="Game Navigation">
+      <section>
+        <h2>Jump to question</h2>
+        <ol id="question-nav" class="question-list" role="list">
+          <li><button data-q="0" class="nav-btn">Find price of medium pepperoni</button></li>
+          <li><button data-q="1" class="nav-btn">What time is the shop open</button></li>
+          <li><button data-q="2" class="nav-btn">Find contact number</button></li>
+          <li><button data-q="3" class="nav-btn">Daily special meal combo price</button></li>
+          <li><button data-q="4" class="nav-btn">How many pizzas are suitable for vegans</button></li>
+          <li><button data-q="5" class="nav-btn">Name of their only dessert</button></li>
+        </ol>
+
+        <h3>Status</h3>
+        <div class="status" aria-live="polite" id="status">Ready</div>
+
+        <div class="demo-tips">
+          <h4>Exhibitor tips</h4>
+          <ul>
+            <li>Enable Funkify filter that matches the chosen disability before pressing "Start 30s".</li>
+            <li>Use jump buttons to demo a single question while discussing.</li>
+          </ul>
+        </div>
+      </section>
+    </aside>
+
+    <section class="main-area" aria-label="Game area">
+      <div class="game-top">
+        <div class="instructions" id="instructions" aria-live="polite">
+          <h2 id="stage-title">Welcome</h2>
+          <p>
+            Round 1 is baseline — clean, accessible site. Round 2 purposely introduces accessibility problems per disability. Each question gives you 30 seconds.
+          </p>
+        </div>
+
+        <div class="timer-panel" aria-hidden="false">
+          <div class="timer-label">Time left</div>
+          <div class="timer-pill" role="timer" aria-atomic="true"><span id="timer">00:30</span></div>
+        </div>
+      </div>
+
+      <div id="game-wrapper" class="game-grid">
+        <!-- Mock pizza website area -->
+        <article class="mock-site card" id="mock-site" tabindex="0" aria-label="Slice Slice Baby website">
+          <header class="mock-header">
+            <div class="hero-left">
+              <!-- Big decorative pizza SVG -->
+              <svg class="hero-pizza" viewBox="0 0 200 120" width="200" height="120" aria-hidden="true" focusable="false">
+                <defs>
+                  <radialGradient id="cheese" cx="50%" cy="30%">
+                    <stop offset="0" stop-color="#fff2c6"/>
+                    <stop offset="1" stop-color="#ffd166"/>
+                  </radialGradient>
+                </defs>
+                <circle cx="90" cy="60" r="58" fill="#f4b183"/>
+                <circle cx="90" cy="60" r="52" fill="url(#cheese)"/>
+                <!-- pepperoni -->
+                <circle cx="110" cy="55" r="9" fill="#b22"/>
+                <circle cx="75" cy="70" r="8" fill="#b22"/>
+                <circle cx="95" cy="40" r="7.5" fill="#b22"/>
+              </svg>
+              <div class="hero-text">
+                <h3 id="hero-title">Hot & Fresh — Takeaway & Delivery</h3>
+                <p id="hero-sub">Open daily — best slices in town</p>
+              </div>
+            </div>
+
+            <nav class="main-nav" aria-label="Main navigation">
+              <a href="#menu" class="nav-link">Menu</a>
+              <a href="#specials" class="nav-link">Specials</a>
+              <a href="#contact" class="nav-link">Contact</a>
+            </nav>
+          </header>
+
+          <section class="menu card-section" id="menu">
+            <h3>Pizza Menu</h3>
+            <ul class="pizza-list" aria-label="Pizza list">
+              <li class="pizza" data-vegan="false">
+                <div class="pizza-row">
+                  <svg class="pizza-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2L4 8v4c0 6 4 10 8 10s8-4 8-10V8l-8-6z" fill="#ff7b54"/></svg>
+                  <div class="pizza-meta">
+                    <div class="pizza-name">Medium Pepperoni</div>
+                    <div class="pizza-desc">Classic pepperoni, tomato sauce, mozzarella</div>
+                  </div>
+                  <div class="pizza-controls">
+                    <div class="pizza-price" data-price="12.99">£12.99</div>
+                    <button class="add small-cta btn" aria-label="Add Medium Pepperoni">Add</button>
+                  </div>
+                </div>
+              </li>
+
+              <li class="pizza" data-vegan="true">
+                <div class="pizza-row">
+                  <svg class="pizza-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2L4 8v4c0 6 4 10 8 10s8-4 8-10V8l-8-6z" fill="#9be7a4"/></svg>
+                  <div class="pizza-meta">
+                    <div class="pizza-name">Medium Margherita (V)</div>
+                    <div class="pizza-desc">Tomato, basil, mozzarella</div>
+                  </div>
+                  <div class="pizza-controls">
+                    <div class="pizza-price" data-price="11.99">£11.99</div>
+                    <button class="add small-cta btn" aria-label="Add Medium Margherita">Add</button>
+                  </div>
+                </div>
+              </li>
+
+              <li class="pizza" data-vegan="true">
+                <div class="pizza-row">
+                  <svg class="pizza-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2L4 8v4c0 6 4 10 8 10s8-4 8-10V8l-8-6z" fill="#f7d794"/></svg>
+                  <div class="pizza-meta">
+                    <div class="pizza-name">Medium Vegan Delight</div>
+                    <div class="pizza-desc">Vegan cheese, mixed veg</div>
+                  </div>
+                  <div class="pizza-controls">
+                    <div class="pizza-price" data-price="13.50">£13.50</div>
+                    <button class="add small-cta btn" aria-label="Add Medium Vegan Delight">Add</button>
+                  </div>
+                </div>
+              </li>
+
+              <li class="pizza" data-vegan="true">
+                <div class="pizza-row">
+                  <svg class="pizza-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2L4 8v4c0 6 4 10 8 10s8-4 8-10V8l-8-6z" fill="#9be7a4"/></svg>
+                  <div class="pizza-meta">
+                    <div class="pizza-name">Small Veg Supreme (V)</div>
+                    <div class="pizza-desc">Peppers, olives, onions</div>
+                  </div>
+                  <div class="pizza-controls">
+                    <div class="pizza-price" data-price="9.99">£9.99</div>
+                    <button class="add small-cta btn" aria-label="Add Small Veg Supreme">Add</button>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </section>
+
+          <section class="specials card-section" id="specials">
+            <h3>Daily Special</h3>
+            <div class="special">
+              <div class="special-name">Two pizzas + garlic bread + drink</div>
+              <div class="special-price">£20.99</div>
+            </div>
+          </section>
+
+          <section class="contact card-section" id="contact">
+            <h3>Contact & Opening</h3>
+            <p><strong>Phone:</strong> <span id="phone">01612219900</span></p>
+            <p><strong>Opening hours:</strong> Mon–Sun 11:00 – 23:00</p>
+            <p><a href="tel:01612219900" class="call-btn btn">Call us</a></p>
+          </section>
+
+          <section class="desserts card-section" id="desserts">
+            <h3>Desserts</h3>
+            <ul>
+              <li class="dessert">Vanilla slice</li>
+            </ul>
+          </section>
+        </article>
+
+        <!-- Question & answer -->
+        <aside class="qa card" aria-label="Question and answer">
+          <div id="question-card" class="question-card" role="region" aria-labelledby="q-title">
+            <h3 id="q-title">Ready</h3>
+            <p id="q-desc">Press Start Round 1 to begin the baseline run.</p>
+
+            <form id="answer-form" autocomplete="off">
+              <label for="answer" id="answer-label">Your answer</label>
+              <input id="answer" name="answer" type="text" inputmode="text" aria-labelledby="answer-label" class="input" />
+              <div class="qa-buttons">
+                <button id="submit-answer" type="submit" class="btn primary">Submit</button>
+                <button id="skip" type="button" class="btn outline">Skip</button>
+              </div>
+              <div id="feedback" role="status" aria-live="polite" class="feedback"></div>
+            </form>
+
+            <div class="progress-block">
+              <div>Progress: <span id="progress">0 / 6</span></div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>Demo for trade show use. Use Funkify to simulate disabilities for Round 2.</p>
+      <p class="small">Built for presentation purposes — modify questions in script.js.</p>
+    </div>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+:root{
+  --bg-1: #fff7f1;
+  --bg-2: #fff4e6;
+  --primary: #ff6b35; /* brand */
+  --accent: #ffd166;
+  --muted:#5a5a5a;
+  --card-bg: #ffffff;
+  --shadow: 0 8px 24px rgba(18,18,18,0.08);
+  --success:#2b8a3e;
+  --danger:#c62828;
+  --focus: 3px solid rgba(34,150,243,0.18);
+  --glass: rgba(255,255,255,0.6);
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+/* Reset & basics */
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background: linear-gradient(180deg,var(--bg-1),var(--bg-2));
+  color:#222;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  line-height:1.4;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+a{color:var(--primary);text-decoration:none}
+a:hover{text-decoration:underline}
+.skip{position:absolute;left:-999px;top:auto;width:1px;height:1px;overflow:hidden}
+.skip:focus{left:16px;top:12px;width:auto;height:auto;background:#000;color:#fff;padding:8px;border-radius:4px}
+
+.site-header{padding:18px 22px;border-bottom:1px solid rgba(0,0,0,0.04);backdrop-filter: blur(4px)}
+.header-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:1200px;margin:auto}
+.brand{display:flex;gap:12px;align-items:center}
+.logo-svg{flex:0 0 46px;border-radius:8px}
+.brand-text h1{margin:0;font-size:1.1rem;letter-spacing:0.4px}
+.brand-text .tagline{margin:0;font-size:0.85rem;color:var(--muted)}
+
+.header-actions{display:flex;align-items:center;gap:10px}
+.round-controls{display:flex;gap:8px}
+.btn{
+  border:0;padding:10px 12px;border-radius:10px;font-weight:600;background:var(--card-bg);cursor:pointer;box-shadow:var(--shadow);
+}
+.btn:focus{outline:none;box-shadow:var(--focus)}
+.btn.primary{background:linear-gradient(90deg,var(--primary),#ff8a5b);color:#fff}
+.btn.outline{background:transparent;border:1px solid rgba(0,0,0,0.06)}
+.select{padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);background:#fff}
+
+/* Layout */
+.container{display:flex;gap:18px;padding:20px;max-width:1200px;margin:auto;width:100%}
+.sidebar{width:260px;flex:0 0 260px}
+.main-area{flex:1;min-width:320px}
+
+/* Sidebar */
+.sidebar h2,h3{margin:10px 0 6px}
+.question-list{padding-left:0;list-style:none;margin:0}
+.question-list li{margin-bottom:8px}
+.nav-btn{display:block;padding:8px 10px;border-radius:8px;border:1px solid rgba(0,0,0,0.04);background:#fff;text-align:left;width:100%;cursor:pointer}
+.nav-btn:focus{box-shadow:var(--focus)}
+.status{margin-top:10px;font-style:italic;color:var(--muted)}
+.demo-tips{margin-top:14px;background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(255,255,255,0.8));padding:10px;border-radius:8px;border:1px solid rgba(0,0,0,0.03)}
+
+/* Game grid */
+.game-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.instructions{background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(255,255,255,0.85));padding:12px;border-radius:10px;border:1px solid rgba(0,0,0,0.03);max-width:64%}
+.timer-panel{text-align:right}
+.timer-pill{background:rgba(0,0,0,0.08);padding:8px 12px;border-radius:20px;font-weight:700}
+
+/* Cards & mock site */
+.game-grid{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}
+.card{background:var(--card-bg);border-radius:12px;padding:14px;box-shadow:var(--shadow)}
+.mock-site{min-height:520px;overflow:auto}
+.mock-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.hero-left{display:flex;gap:14px;align-items:center}
+.hero-pizza{border-radius:8px}
+.hero-text h3{margin:0;font-size:1.15rem}
+.hero-text p{margin:6px 0 0;color:var(--muted)}
+
+/* Sections */
+.card-section{border-top:1px dashed rgba(0,0,0,0.04);padding-top:12px;margin-top:12px}
+.pizza-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:14px}
+.pizza{display:block}
+.pizza-row{display:flex;align-items:center;gap:12px}
+.pizza-icon{width:46px;height:46px}
+.pizza-meta{flex:1}
+.pizza-name{font-weight:700}
+.pizza-desc{color:var(--muted);font-size:0.95rem}
+.pizza-controls{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.pizza-price{font-size:1.05rem;color:#2e7d32;font-weight:700}
+.small-cta{padding:6px 8px;border-radius:8px;font-weight:700;background:linear-gradient(90deg,#fff,#fff);border:1px solid rgba(0,0,0,0.05)}
+.call-btn{display:inline-block;padding:8px 12px;border-radius:10px;background:linear-gradient(90deg,#ff8a5b,#ffbf86);color:#fff}
+
+/* QA panel */
+.question-card h3{margin-top:0}
+.input{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);margin-top:8px}
+.qa-buttons{display:flex;gap:8px;margin-top:10px}
+.feedback{margin-top:8px;font-weight:700;min-height:1.2em}
+
+/* Footer */
+.site-footer{margin-top:18px;padding:12px 22px;border-top:1px solid rgba(0,0,0,0.04);font-size:0.9rem}
+.footer-inner{max-width:1200px;margin:auto;display:flex;justify-content:space-between;align-items:center}
+
+/* Disability simulation classes (unchanged behaviours) */
+/* Colour blindness: make price highlighted with red/green poor contrast */
+.mock-site.color-blind .pizza-price{
+  color:#e53935; /* red tone on similar background */
+  background: #a7c77f; /* greenish behind text to reduce contrast */
+  padding:4px 8px;border-radius:6px;
+}
+
+/* Dyslexia: move paragraphs & animate text horizontally */
+.mock-site.dyslexia .pizza-desc,
+.mock-site.dyslexia .hero-sub,
+.mock-site.dyslexia .special-name,
+.mock-site.dyslexia .contact p,
+.mock-site.dyslexia .dessert{
+  animation: jitter 1.6s infinite linear;
+}
+@keyframes jitter{
+  0%{transform:translateX(0)}
+  25%{transform:translateX(-6px)}
+  50%{transform:translateX(0)}
+  75%{transform:translateX(6px)}
+  100%{transform:translateX(0)}
+}
+
+/* Coordination tremor: make CTAs small and slightly moving so they're hard to click */
+.mock-site.tremor .small-cta{
+  transform:scale(0.84);
+  width:48px;
+  height:28px;
+  font-size:12px;
+  animation: shake-cta 0.24s infinite;
+}
+@keyframes shake-cta{
+  0%{transform:translate(0,0) scale(0.84)}
+  50%{transform:translate(2px, -2px) scale(0.84)}
+  100%{transform:translate(0,0) scale(0.84)}
+}
+
+/* No mouse: remove visible focus and remove pointer affordances */
+.mock-site.nomouse a, .mock-site.nomouse button{
+  outline: none;
+}
+.mock-site.nomouse .small-cta{pointer-events:none;opacity:0.72}
+
+/* Blurred vision */
+.mock-site.blur{filter:blur(2px)}
+.mock-site.blur .pizza-price{font-size:12px}
+.mock-site.blur .small-cta{font-size:11px;padding:4px}
+
+/* Centre vision loss: overlay a central mask */
+.mock-site.centreloss{position:relative}
+.mock-site.centreloss::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.96) 0 22%, rgba(255,255,255,0.74) 22% 30%, rgba(255,255,255,0) 30%);
+  mix-blend-mode:normal;
+}
+
+/* Focus styles for keyboard users */
+a:focus, button:focus, input:focus {box-shadow:var(--focus);outline:none}
+
+/* Responsive */
+@media (max-width:980px){
+  .container{flex-direction:column;padding:14px}
+  .game-grid{grid-template-columns:1fr;gap:12px}
+  .sidebar{order:2;width:auto}
+  .header-inner{flex-direction:column;align-items:flex-start;gap:12px}
+}
