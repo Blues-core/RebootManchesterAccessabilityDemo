@@ -39,16 +39,6 @@
           <button id="start-round1" class="btn primary">Start Round 1</button>
           <button id="start-round2" class="btn outline">Start Round 2</button>
         </div>
-        <label for="round2-disability" class="visually-hidden">Choose disability</label>
-        <select id="round2-disability" aria-label="Disability for round 2" class="select">
-          <option value="">-- choose disability for demo --</option>
-          <option value="color">Colour blindness (red/green)</option>
-          <option value="dyslexia">Dyslexia</option>
-          <option value="tremor">Coordination tremor</option>
-          <option value="nomouse">No mouse (keyboard issues)</option>
-          <option value="blur">Blurred vision</option>
-          <option value="centreloss">Centre vision loss</option>
-        </select>
       </div>
     </div>
   </header>
@@ -72,7 +62,7 @@
         <div class="demo-tips">
           <h4>Exhibitor tips</h4>
           <ul>
-            <li>Enable Funkify filter that matches the chosen disability before pressing "Start 30s".</li>
+            <li>Enable Funkify filter that matches the chosen disability before pressing "Start 30s" on Round 2.</li>
             <li>Use jump buttons to demo a single question while discussing.</li>
           </ul>
         </div>
@@ -84,7 +74,7 @@
         <div class="instructions" id="instructions" aria-live="polite">
           <h2 id="stage-title">Welcome</h2>
           <p>
-            Round 1 is baseline — clean, accessible site. Round 2 purposely introduces accessibility problems per disability. Each question gives you 30 seconds.
+            Round 1 is baseline — clean, accessible site. Round 2 purposely introduces accessibility problems via the Funkify extension. Each question gives you 30 seconds.
           </p>
         </div>
 
@@ -138,7 +128,7 @@
                     <div class="pizza-desc">Classic pepperoni, tomato sauce, mozzarella</div>
                   </div>
                   <div class="pizza-controls">
-                    <div class="pizza-price" data-price="12.99">£12.99</div>
+                    <div class="pizza-price lozenge">£12.99</div>
                     <button class="add small-cta btn" aria-label="Add Medium Pepperoni">Add</button>
                   </div>
                 </div>
@@ -152,7 +142,7 @@
                     <div class="pizza-desc">Tomato, basil, mozzarella</div>
                   </div>
                   <div class="pizza-controls">
-                    <div class="pizza-price" data-price="11.99">£11.99</div>
+                    <div class="pizza-price lozenge">£11.99</div>
                     <button class="add small-cta btn" aria-label="Add Medium Margherita">Add</button>
                   </div>
                 </div>
@@ -166,7 +156,7 @@
                     <div class="pizza-desc">Vegan cheese, mixed veg</div>
                   </div>
                   <div class="pizza-controls">
-                    <div class="pizza-price" data-price="13.50">£13.50</div>
+                    <div class="pizza-price lozenge">£13.50</div>
                     <button class="add small-cta btn" aria-label="Add Medium Vegan Delight">Add</button>
                   </div>
                 </div>
@@ -180,7 +170,7 @@
                     <div class="pizza-desc">Peppers, olives, onions</div>
                   </div>
                   <div class="pizza-controls">
-                    <div class="pizza-price" data-price="9.99">£9.99</div>
+                    <div class="pizza-price lozenge">£9.99</div>
                     <button class="add small-cta btn" aria-label="Add Small Veg Supreme">Add</button>
                   </div>
                 </div>
@@ -192,15 +182,19 @@
             <h3>Daily Special</h3>
             <div class="special">
               <div class="special-name">Two pizzas + garlic bread + drink</div>
-              <div class="special-price">£20.99</div>
+              <div class="special-price lozenge">£20.99</div>
             </div>
           </section>
 
           <section class="contact card-section" id="contact">
             <h3>Contact & Opening</h3>
-            <p><strong>Phone:</strong> <span id="phone">01612219900</span></p>
-            <p><strong>Opening hours:</strong> Mon–Sun 11:00 – 23:00</p>
-            <p><a href="tel:01612219900" class="call-btn btn">Call us</a></p>
+
+            <div class="phone-wrap">
+              <p><strong>Phone:</strong> <span id="phone" class="phone-hidden">01612219900</span></p>
+              <p><button type="button" class="call-btn btn" aria-hidden="true" tabindex="0">Call us</button></p>
+            </div>
+
+            <p class="opening"><strong>Opening hours:</strong> Mon–Sun 11:00 – 23:00</p>
           </section>
 
           <section class="desserts card-section" id="desserts">

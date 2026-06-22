@@ -92,6 +92,24 @@ a:hover{text-decoration:underline}
 .small-cta{padding:6px 8px;border-radius:8px;font-weight:700;background:linear-gradient(90deg,#fff,#fff);border:1px solid rgba(0,0,0,0.05)}
 .call-btn{display:inline-block;padding:8px 12px;border-radius:10px;background:linear-gradient(90deg,#ff8a5b,#ffbf86);color:#fff}
 
+/* Make prices intentionally hard to read for colour blindness: red text on green background lozenge */
+.lozenge{
+  display:inline-block;
+  color:#b71c1c; /* dark red */
+  background:#2e7d32; /* green background */
+  padding:6px 10px;
+  border-radius:999px;
+  font-weight:700;
+}
+
+/* Contact tweaks: hide phone until hover on the wrapper */
+.phone-wrap{display:inline-block}
+.phone-hidden{color:transparent;user-select:none}
+.phone-wrap:hover .phone-hidden{color:inherit}
+
+/* Make opening hours text smaller to demonstrate difficulty */
+.contact .opening{font-size:0.88rem;color:var(--muted)}
+
 /* QA panel */
 .question-card h3{margin-top:0}
 .input{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);margin-top:8px}
@@ -101,66 +119,6 @@ a:hover{text-decoration:underline}
 /* Footer */
 .site-footer{margin-top:18px;padding:12px 22px;border-top:1px solid rgba(0,0,0,0.04);font-size:0.9rem}
 .footer-inner{max-width:1200px;margin:auto;display:flex;justify-content:space-between;align-items:center}
-
-/* Disability simulation classes (unchanged behaviours) */
-/* Colour blindness: make price highlighted with red/green poor contrast */
-.mock-site.color-blind .pizza-price{
-  color:#e53935; /* red tone on similar background */
-  background: #a7c77f; /* greenish behind text to reduce contrast */
-  padding:4px 8px;border-radius:6px;
-}
-
-/* Dyslexia: move paragraphs & animate text horizontally */
-.mock-site.dyslexia .pizza-desc,
-.mock-site.dyslexia .hero-sub,
-.mock-site.dyslexia .special-name,
-.mock-site.dyslexia .contact p,
-.mock-site.dyslexia .dessert{
-  animation: jitter 1.6s infinite linear;
-}
-@keyframes jitter{
-  0%{transform:translateX(0)}
-  25%{transform:translateX(-6px)}
-  50%{transform:translateX(0)}
-  75%{transform:translateX(6px)}
-  100%{transform:translateX(0)}
-}
-
-/* Coordination tremor: make CTAs small and slightly moving so they're hard to click */
-.mock-site.tremor .small-cta{
-  transform:scale(0.84);
-  width:48px;
-  height:28px;
-  font-size:12px;
-  animation: shake-cta 0.24s infinite;
-}
-@keyframes shake-cta{
-  0%{transform:translate(0,0) scale(0.84)}
-  50%{transform:translate(2px, -2px) scale(0.84)}
-  100%{transform:translate(0,0) scale(0.84)}
-}
-
-/* No mouse: remove visible focus and remove pointer affordances */
-.mock-site.nomouse a, .mock-site.nomouse button{
-  outline: none;
-}
-.mock-site.nomouse .small-cta{pointer-events:none;opacity:0.72}
-
-/* Blurred vision */
-.mock-site.blur{filter:blur(2px)}
-.mock-site.blur .pizza-price{font-size:12px}
-.mock-site.blur .small-cta{font-size:11px;padding:4px}
-
-/* Centre vision loss: overlay a central mask */
-.mock-site.centreloss{position:relative}
-.mock-site.centreloss::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  background: radial-gradient(circle at center, rgba(255,255,255,0.96) 0 22%, rgba(255,255,255,0.74) 22% 30%, rgba(255,255,255,0) 30%);
-  mix-blend-mode:normal;
-}
 
 /* Focus styles for keyboard users */
 a:focus, button:focus, input:focus {box-shadow:var(--focus);outline:none}

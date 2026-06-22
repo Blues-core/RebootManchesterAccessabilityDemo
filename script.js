@@ -1,6 +1,4 @@
-// Game logic updated: Round 2 cycles through disabilities (one per question), uses different site content/answers,
-// and shows exhibitor talking points on the pre-question overlay.
-// NOTE: Visual simulation classes are NOT applied in Round 2 — Funkify extension will be used to simulate disabilities.
+// Game logic updated: small validation to prevent blank submissions, and contact DOM changes handled
 (() => {
   const DISABILITIES = ['color','dyslexia','tremor','nomouse','blur','centreloss'];
 
@@ -99,8 +97,6 @@
   const qDesc = document.getElementById('q-desc');
   const answerForm = document.getElementById('answer-form');
   const answerInput = document.getElementById('answer');
-  const submitBtn = document.getElementById('submit-answer');
-  const skipBtn = document.getElementById('skip');
   const timerEl = document.getElementById('timer');
   const mockSite = document.getElementById('mock-site');
   const progressEl = document.getElementById('progress');
@@ -128,13 +124,11 @@
       priceEl.textContent = (r === 1) ? '£12.99' : '£13.49';
     }
 
-    // Q1: opening hours
+    // Q1: opening hours - find the element with class .opening
     const contact = document.querySelector('#contact');
     if (contact) {
-      const pEls = contact.querySelectorAll('p');
-      if (pEls && pEls.length >= 2) {
-        pEls[1].innerHTML = `<strong>Opening hours:</strong> ${(r === 1) ? 'Mon–Sun 11:00 – 23:00' : 'Mon–Sun 10:00 – 22:00'}`;
-      }
+      const openingEl = contact.querySelector('.opening');
+      if (openingEl) openingEl.innerHTML = `<strong>Opening hours:</strong> ${(r === 1) ? 'Mon–Sun 11:00 – 23:00' : 'Mon–Sun 10:00 – 22:00'}`;
     }
 
     // Q2: phone
@@ -199,18 +193,6 @@
 
   function mapIndexToDisability(idx){
     return DISABILITIES[idx % DISABILITIES.length];
-  }
-
-  function mapSelectToClass(val){
-    const map = {
-      'color':'color-blind',
-      'dyslexia':'dyslexia',
-      'tremor':'tremor',
-      'nomouse':'nomouse',
-      'blur':'blur',
-      'centreloss':'centreloss'
-    };
-    return map[val] || '';
   }
 
   function clearDisabilityClasses(){
@@ -420,10 +402,15 @@
     goToQuestion(idx);
   });
 
-  // Answer submit
+  // Answer submit - prevent blank submissions
   answerForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const val = answerInput.value || '';
+    const val = (answerInput && answerInput.value) ? answerInput.value.trim() : '';
+    if (val === '') {
+      feedback.textContent = 'Please enter an answer before submitting.';
+      feedback.style.color = 'var(--danger)';
+      return;
+    }
     const isCorrect = checkAnswer(val);
     markCompleted(isCorrect);
     setTimeout(() => {
@@ -431,6 +418,8 @@
     }, 900);
   });
 
+  // Skip button
+  const skipBtn = document.getElementById('skip');
   skipBtn.addEventListener('click', () => {
     markCompleted(false);
     setTimeout(() => nextQuestion(), 700);
