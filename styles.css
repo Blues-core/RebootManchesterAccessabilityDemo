@@ -102,10 +102,11 @@ a:hover{text-decoration:underline}
   font-weight:700;
 }
 
-/* Contact tweaks: hide phone until hover on the wrapper */
+/* Contact tweaks: hide phone until explicit reveal; allow visible toggling via .phone-visible */
 .phone-wrap{display:inline-block}
 .phone-hidden{color:transparent;user-select:none}
-.phone-wrap:hover .phone-hidden{color:inherit}
+.phone-visible{color:inherit}
+.phone-controls{display:flex;gap:8px;margin-top:6px}
 
 /* Make opening hours text smaller to demonstrate difficulty */
 .contact .opening{font-size:0.88rem;color:var(--muted)}
@@ -115,6 +116,12 @@ a:hover{text-decoration:underline}
 .input{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);margin-top:8px}
 .qa-buttons{display:flex;gap:8px;margin-top:10px}
 .feedback{margin-top:8px;font-weight:700;min-height:1.2em}
+
+/* Results overlay */
+.results-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(rgba(2,6,23,0.55),rgba(2,6,23,0.55));z-index:9999}
+.results-card{background:#fff;padding:18px;border-radius:12px;max-width:900px;max-height:80vh;overflow:auto;box-shadow:0 12px 40px rgba(2,6,23,0.4)}
+.results-table{width:100%;border-collapse:collapse;margin-top:10px}
+.results-table th,.results-table td{padding:8px;border:1px solid #eee;text-align:left}
 
 /* Footer */
 .site-footer{margin-top:18px;padding:12px 22px;border-top:1px solid rgba(0,0,0,0.04);font-size:0.9rem}

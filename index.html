@@ -191,7 +191,10 @@
 
             <div class="phone-wrap">
               <p><strong>Phone:</strong> <span id="phone" class="phone-hidden">01612219900</span></p>
-              <p><button type="button" class="call-btn btn" aria-hidden="true" tabindex="0">Call us</button></p>
+              <div class="phone-controls">
+                <button id="show-phone" class="btn outline" aria-expanded="false" aria-controls="phone">Show phone</button>
+                <button type="button" class="call-btn btn" aria-disabled="true" disabled>Call us</button>
+              </div>
             </div>
 
             <p class="opening"><strong>Opening hours:</strong> Mon–Sun 11:00 – 23:00</p>

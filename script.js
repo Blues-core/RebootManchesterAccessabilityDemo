@@ -1,4 +1,4 @@
-// Game logic updated: small validation to prevent blank submissions, and contact DOM changes handled
+// Game logic updated: track per-question timing for both rounds, add Show phone toggle, and results overlay after Round 2
 (() => {
   const DISABILITIES = ['color','dyslexia','tremor','nomouse','blur','centreloss'];
 
@@ -101,12 +101,18 @@
   const mockSite = document.getElementById('mock-site');
   const progressEl = document.getElementById('progress');
   const feedback = document.getElementById('feedback');
+  const showPhoneBtn = document.getElementById('show-phone');
+  const phoneSpan = document.getElementById('phone');
 
   let round = 0; // 1 baseline, 2 simulated
   let currentQ = null;
   let timer = null;
   let timeLeft = 30;
   let completed = 0;
+  let questionStart = null;
+
+  // Results storage: results[round][index] = { time: seconds, correct: bool }
+  const results = { 1: Array(QUESTIONS.length).fill(null), 2: Array(QUESTIONS.length).fill(null) };
 
   function normalizeAnswerText(v){
     return ('' + v).trim().toLowerCase().replace(/£/g,'').replace(/\s+/g,' ');
@@ -211,7 +217,6 @@
 
     if (round === 2) {
       const disabilityKey = mapIndexToDisability(index);
-      // Do NOT apply any local CSS simulation here. Funkify extension will be used to simulate the disability.
       clearDisabilityClasses();
       showPrePageForDisability(disabilityKey, () => {
         startTimer();
@@ -310,6 +315,7 @@
   function startTimer(){
     clearTimer();
     timeLeft = 30;
+    questionStart = Date.now();
     updateTimerDisplay();
     timer = setInterval(() => {
       timeLeft--;
@@ -324,6 +330,7 @@
   function resetTimer(){
     clearTimer();
     timeLeft = 30;
+    questionStart = null;
     updateTimerDisplay();
   }
 
@@ -337,10 +344,26 @@
     timerEl.textContent = `${mm}:${ss}`;
   }
 
+  function recordResult(correct){
+    if (!currentQ) return;
+    const idx = currentQ.index;
+    const r = round;
+    let elapsed = 0;
+    if (questionStart) {
+      elapsed = Math.round((Date.now() - questionStart) / 1000);
+      if (elapsed > 30) elapsed = 30;
+    } else {
+      // fallback to 30 - timeLeft
+      elapsed = 30 - timeLeft;
+    }
+    results[r][idx] = { time: elapsed, correct: !!correct };
+  }
+
   function onTimeUp(){
     feedback.textContent = 'Time up — automatically moving to next question.';
     feedback.style.color = 'var(--danger)';
-    markCompleted(false);
+    recordResult(false);
+    markCompleted(false, {record:false});
     setTimeout(() => {
       nextQuestion();
     }, 1200);
@@ -361,8 +384,9 @@
     return norm.includes(expected) || expected.includes(norm) || norm === expected;
   }
 
-  function markCompleted(correct){
+  function markCompleted(correct, opts = {record:true}){
     clearTimer();
+    if (opts.record) recordResult(correct);
     completed++;
     updateProgress();
     if (correct) {
@@ -388,11 +412,140 @@
     statusEl.textContent = `Round ${round} finished — Completed ${completed} of ${QUESTIONS.length}`;
     feedback.textContent = '';
     clearDisabilityClasses();
+
+    if (round === 2) {
+      // Show results comparison overlay
+      showResultsOverlay();
+    }
+  }
+
+  function showResultsOverlay(){
+    // Build a comparison table between round1 and round2
+    const overlay = document.createElement('div');
+    overlay.className = 'results-overlay';
+    overlay.setAttribute('role','dialog');
+    overlay.setAttribute('aria-modal','true');
+
+    const card = document.createElement('div');
+    card.className = 'results-card';
+
+    const h = document.createElement('h2');
+    h.textContent = 'Results — Round 1 vs Round 2';
+    card.appendChild(h);
+
+    const summary = document.createElement('p');
+    const total1 = results[1].reduce((s,r)=> s + (r && r.time? r.time:0), 0);
+    const total2 = results[2].reduce((s,r)=> s + (r && r.time? r.time:0), 0);
+    summary.textContent = `Total time Round 1: ${total1}s — Round 2: ${total2}s`;
+    card.appendChild(summary);
+
+    const table = document.createElement('table');
+    table.className = 'results-table';
+    const thead = document.createElement('thead');
+    thead.innerHTML = '<tr><th>Q#</th><th>Question</th><th>Round 1 (s)</th><th>Round 2 (s)</th><th>Diff (s)</th><th>R1 correct</th><th>R2 correct</th></tr>';
+    table.appendChild(thead);
+    const tbody = document.createElement('tbody');
+    QUESTIONS.forEach((q, idx) => {
+      const r1 = results[1][idx];
+      const r2 = results[2][idx];
+      const t1 = r1 && r1.time != null ? r1.time : '-';
+      const t2 = r2 && r2.time != null ? r2.time : '-';
+      const diff = (t1 !== '-' && t2 !== '-') ? (t2 - t1) : '-';
+      const r1c = r1 && typeof r1.correct === 'boolean' ? (r1.correct ? '✔' : '✖') : '-';
+      const r2c = r2 && typeof r2.correct === 'boolean' ? (r2.correct ? '✔' : '✖') : '-';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${idx+1}</td><td>${q.title}</td><td>${t1}</td><td>${t2}</td><td>${diff}</td><td>${r1c}</td><td>${r2c}</td>`;
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    card.appendChild(table);
+
+    const btnRow = document.createElement('div');
+    btnRow.style.marginTop = '12px';
+    btnRow.style.display = 'flex';
+    btnRow.style.gap = '10px';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'btn primary';
+    closeBtn.textContent = 'Close';
+    closeBtn.onclick = () => document.body.removeChild(overlay);
+
+    const downloadBtn = document.createElement('button');
+    downloadBtn.className = 'btn outline';
+    downloadBtn.textContent = 'Download CSV';
+    downloadBtn.onclick = () => {
+      downloadCSV();
+    };
+
+    btnRow.appendChild(closeBtn);
+    btnRow.appendChild(downloadBtn);
+    card.appendChild(btnRow);
+
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+    closeBtn.focus();
+  }
+
+  function downloadCSV(){
+    const rows = [['q','question','round1_time','round2_time','round1_correct','round2_correct']];
+    QUESTIONS.forEach((q, idx) => {
+      const r1 = results[1][idx] || {};
+      const r2 = results[2][idx] || {};
+      rows.push([idx+1, q.title, r1.time != null ? r1.time : '', r2.time != null ? r2.time : '', r1.correct != null ? r1.correct : '', r2.correct != null ? r2.correct : '']);
+    });
+    const csv = rows.map(r => r.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'slice-slice-baby-results.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function recordResult(correct){
+    if (!currentQ) return;
+    const idx = currentQ.index;
+    const r = round;
+    let elapsed = 0;
+    if (questionStart) {
+      elapsed = Math.round((Date.now() - questionStart) / 1000);
+      if (elapsed > 30) elapsed = 30;
+    } else {
+      elapsed = 30 - timeLeft;
+    }
+    results[r][idx] = { time: elapsed, correct: !!correct };
+  }
+
+  function markCompleted(correct, opts = {record:true}){
+    clearTimer();
+    if (opts.record) recordResult(correct);
+    completed++;
+    updateProgress();
+    if (correct) {
+      feedback.textContent = 'Correct ✔';
+      feedback.style.color = 'var(--success)';
+    } else {
+      const ans = (round === 1) ? currentQ.answerRound1 : currentQ.answerRound2;
+      feedback.textContent = `Wrong / timed out. Answer: ${ans}`;
+      feedback.style.color = 'var(--danger)';
+    }
   }
 
   // Event listeners
   startR1Btn.addEventListener('click', () => startRound(1));
   startR2Btn.addEventListener('click', () => startRound(2));
+
+  // Show phone toggle
+  if (showPhoneBtn && phoneSpan) {
+    showPhoneBtn.addEventListener('click', () => {
+      const revealed = phoneSpan.classList.toggle('phone-visible');
+      showPhoneBtn.setAttribute('aria-expanded', revealed ? 'true' : 'false');
+      showPhoneBtn.textContent = revealed ? 'Hide phone' : 'Show phone';
+    });
+  }
 
   // Jump to question from nav
   questionNav.addEventListener('click', (e) => {
@@ -409,6 +562,7 @@
     if (val === '') {
       feedback.textContent = 'Please enter an answer before submitting.';
       feedback.style.color = 'var(--danger)';
+      if (answerInput) answerInput.focus();
       return;
     }
     const isCorrect = checkAnswer(val);
@@ -421,7 +575,8 @@
   // Skip button
   const skipBtn = document.getElementById('skip');
   skipBtn.addEventListener('click', () => {
-    markCompleted(false);
+    recordResult(false);
+    markCompleted(false, {record:false});
     setTimeout(() => nextQuestion(), 700);
   });
 
