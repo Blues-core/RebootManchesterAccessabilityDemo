@@ -95,7 +95,7 @@ a:hover{text-decoration:underline}
 /* Make prices intentionally hard to read for colour blindness: red text on green background lozenge */
 .lozenge{
   display:inline-block;
-  color:#b71c1c; /* dark red */
+  color:#8c1717; /* dark red */
   background:#2e7d32; /* green background */
   padding:6px 10px;
   border-radius:999px;
